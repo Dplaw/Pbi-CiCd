@@ -1,0 +1,41 @@
+table location_dim
+	lineageTag: 7946e04c-b122-4371-827d-b41e870fd19a
+
+	column Kraj
+		dataType: string
+		lineageTag: e38e6f74-dfaa-4c4e-a522-52a5167ad688
+		summarizeBy: none
+		sourceColumn: Kraj
+
+		annotation SummarizationSetBy = Automatic
+
+	column Hub
+		dataType: string
+		lineageTag: b6485bdb-0246-4c63-b698-5061abb953bb
+		summarizeBy: none
+		sourceColumn: Hub
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: d883190e-97a8-4001-8aea-8e3c1baf10f3
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	partition location_dim = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\dplaw\Desktop\Pbi climb\Country-Hub-Region.xlsx"), null, true),
+				    Table1_Table = Source{[Item="Table1",Kind="Table"]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(Table1_Table,{{"Kraj", type text}, {"Hub", type text}, {"Region", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,108 @@
+table Sales_fct
+	lineageTag: 70c6bc35-aed7-489f-a81c-6dd7d78db55f
+
+	column 'Client ID'
+		dataType: string
+		lineageTag: 08c73fb4-df7b-4b37-9ce2-e91fc610775c
+		summarizeBy: none
+		sourceColumn: Client ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: 4490499d-3037-4be4-b38a-ef3a42f575af
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Business Unit'
+		dataType: string
+		lineageTag: 7711725f-d798-441e-9822-96db98d88cab
+		summarizeBy: none
+		sourceColumn: Business Unit
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Product ID'
+		dataType: string
+		lineageTag: 6d46e4a1-826c-4bbb-a55d-50285d2ce6e0
+		summarizeBy: none
+		sourceColumn: Product ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month_Year
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 94e834eb-32cf-4c88-83c9-e96982d1ba4f
+		summarizeBy: none
+		sourceColumn: Month_Year
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Sales in USD'
+		dataType: double
+		lineageTag: 04960c5a-cf12-486a-9a7b-fab042ee8296
+		summarizeBy: sum
+		sourceColumn: Sales in USD
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Sales in Units'
+		dataType: int64
+		formatString: 0
+		lineageTag: acf569f0-276e-40a0-af8a-17bdd60099bf
+		summarizeBy: sum
+		sourceColumn: Sales in Units
+
+		annotation SummarizationSetBy = Automatic
+
+	column Client_Key
+		dataType: string
+		lineageTag: 03fd45b3-d0e7-40bb-ac00-01041a7b6aba
+		summarizeBy: none
+		sourceColumn: Client_Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		dataType: string
+		lineageTag: 652d85f6-655d-4b80-beac-82612ea17b62
+		summarizeBy: none
+		sourceColumn: Quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column CountryClientQuarer_Key
+		dataType: string
+		lineageTag: d03dc612-65a6-4d34-ab87-b7bda32d679a
+		summarizeBy: none
+		sourceColumn: CountryClientQuarer_Key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Sales_fct = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\dplaw\Desktop\Pbi climb\Sales.xlsx"), null, true),
+				    Sales_Sheet = Source{[Item="Sales",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Sales_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Client ID", type text}, {"Country", type text}, {"Business Unit", type text}, {"Product ID", type text}, {"Month_Year", type date}, {"Sales in USD", type number}, {"Sales in Units", Int64.Type}}),
+				    #"Inserted Merged Column" = Table.AddColumn(#"Changed Type", "Client_Key", each Text.Combine({[Country], [Business Unit], [Client ID]}, "-"), type text),
+				    #"Inserted Quarter" = Table.AddColumn(#"Inserted Merged Column", "Quarter", each Date.QuarterOfYear([Month_Year]), Int64.Type),
+				    #"Changed Type1" = Table.TransformColumns(#"Inserted Quarter", {{"Quarter", each "Q" & Text.From(_), type text}}),
+				    #"Inserted Merged Column1" = Table.AddColumn(#"Changed Type1", "CountryClientQuarer_Key", each Text.Combine({[Country], [Client ID], [Quarter]}, "-"), type text)
+				in
+				    #"Inserted Merged Column1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

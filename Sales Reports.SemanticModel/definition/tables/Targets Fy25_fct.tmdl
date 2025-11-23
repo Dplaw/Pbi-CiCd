@@ -1,0 +1,73 @@
+table 'Targets Fy25_fct'
+	lineageTag: 7ed6416a-fc4d-48ef-8cef-58243ef88b41
+
+	column Country
+		dataType: string
+		lineageTag: dfa77f7d-f7eb-4570-a17d-c1f927a500f8
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Client ID'
+		dataType: string
+		lineageTag: aa9c208f-760a-4e89-a668-604b5446a1a5
+		summarizeBy: none
+		sourceColumn: Client ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Business Unit'
+		dataType: string
+		lineageTag: c7985f2e-784d-4101-9996-22b3f76ed1c7
+		summarizeBy: none
+		sourceColumn: Business Unit
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sales Target in USD'
+		dataType: double
+		lineageTag: 9049d229-e029-4823-8360-17b66a1cb544
+		summarizeBy: sum
+		sourceColumn: Sales Target in USD
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Client_Key
+		dataType: string
+		lineageTag: e6a975bd-39b9-4e8b-a8ea-9de6962353ad
+		summarizeBy: none
+		sourceColumn: Client_Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column FyEnd
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: b4e8714f-b1fe-4fb4-b9af-db04ba9372a1
+		summarizeBy: none
+		sourceColumn: FyEnd
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition 'Targets Fy25_fct' = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\dplaw\Desktop\Pbi climb\Targets FY25.xlsx"), null, true),
+				    #"Targets Fy25_Sheet" = Source{[Item="Targets Fy25",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Targets Fy25_Sheet", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Country", type text}, {"Client ID", type text}, {"Business Unit", type text}, {"Sales Target in USD", type number}}),
+				    InsertedMergedColumn = Table.AddColumn(#"Changed Type", "Client_Key", each Text.Combine({[Country], [Business Unit], [Client ID]}, "-"), type text),
+				    FY = Table.AddColumn(InsertedMergedColumn, "FyEnd", each #date(2025, 12, 31), type date)
+				in
+				    FY
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
