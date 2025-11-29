@@ -1,0 +1,59 @@
+table Client_dim
+	lineageTag: 02a682b9-b4de-4f67-b6a5-cc4318ac691f
+
+	column Country
+		dataType: string
+		lineageTag: ede69cd1-bcf0-4ebf-9e67-7d0e7425df98
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Client ID'
+		dataType: string
+		lineageTag: a0ebe31b-0c52-470e-965f-7e80858ccdea
+		summarizeBy: none
+		sourceColumn: Client ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Business Unit'
+		dataType: string
+		lineageTag: 1395ec03-0fad-44bb-9fc1-9c90f49bd50a
+		summarizeBy: none
+		sourceColumn: Business Unit
+
+		annotation SummarizationSetBy = Automatic
+
+	column Client_Key
+		dataType: string
+		lineageTag: d19c872d-8c76-457c-b722-dccbed67b4a6
+		summarizeBy: none
+		sourceColumn: Client_Key
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClientBridge_key
+		dataType: string
+		lineageTag: db66e775-9dde-4fac-89e6-2584b4ea3e82
+		summarizeBy: none
+		sourceColumn: ClientBridge_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Client_dim = m
+		mode: import
+		source =
+				let
+				    Source = Sales_fct,
+				    #"Removed Other Columns" = Table.SelectColumns(Source,{"Client ID", "Country", "Business Unit"}),
+				    #"Inserted Merged Column" = Table.AddColumn(#"Removed Other Columns", "Client_Key", each Text.Combine({[Country], [Business Unit], [Client ID]}, "-"), type text),
+				    #"Inserted Merged Column1" = Table.AddColumn(#"Inserted Merged Column", "ClientBridge_key", each Text.Combine({[Country], [Client ID]}, "-"), type text),
+				    #"Removed Duplicates" = Table.Distinct(#"Inserted Merged Column1")
+				in
+				    #"Removed Duplicates"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
