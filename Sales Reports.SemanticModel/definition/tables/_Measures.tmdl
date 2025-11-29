@@ -627,6 +627,9 @@ table _Measures
 		displayFolder: Late payments
 		lineageTag: 25a49179-d2e6-4720-9d03-edc53b51cf91
 
+	measure Region = FIRSTNONBLANK( location_dim[Region], location_dim[Region] )
+		lineageTag: 9db41cbd-5883-4f9b-a0a5-8336d08afc9f
+
 	partition _Measures = m
 		mode: import
 		source =
