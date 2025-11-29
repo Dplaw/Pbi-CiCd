@@ -14,7 +14,7 @@ def get_path(regions: list[str]) -> list[str]:
     return [os.path.join(f'{folder}_{region}')
             for region in regions
             for folder in folders 
-            if 'Sales Reports' in folder]
+            if folder == 'Sales Reports.Report' or folder == 'Sales Reports.SemanticModel']
 
 
 def create_directory(report_paths: list[str]) -> None: 
@@ -61,6 +61,7 @@ def main(region_path: str, src_report: str, src_semantic_model: str) -> None:
     expressions_path = get_expressions_path(paths, regions)
     path_region_dict = get_path_region_dict(expressions_path, regions)
     get_replace_region(path_region_dict)
+
 
 
 if __name__ == "__main__":
