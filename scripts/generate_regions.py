@@ -26,12 +26,14 @@ def create_directory(report_paths: list[str]) -> None:
 
 def get_copy_report(src: str, dests: list[str]) -> None:
     for dir in dests:
-        shutil.copytree(src, dir, dirs_exist_ok=True)
+        if 'Reports.Report' in dir:
+            shutil.copytree(src, dir, dirs_exist_ok=True)
 
 
 def get_copy_semantic_model(src: str, dests: list[str]) -> None:
     for dir in dests:
-        shutil.copytree(src, dir, dirs_exist_ok=True)
+        if 'SemanticModel' in dir:
+            shutil.copytree(src, dir, dirs_exist_ok=True)
 
 
 def get_expressions_path(paths: list[str], regions: list[str] ) -> list[str]:
@@ -39,7 +41,7 @@ def get_expressions_path(paths: list[str], regions: list[str] ) -> list[str]:
 
 
 def get_metadata_path(paths: list[str], regions: list[str] ) -> list[str]:
-    return [os.path.join(path, ".platform") for path in paths if 'SemanticModel' in path]
+    return [os.path.join(path, ".platform") for path in paths]
 
 
 def get_path_region_dict(expressions_path: list[str], regions: list[str]) -> dict[str, str]:
@@ -47,7 +49,7 @@ def get_path_region_dict(expressions_path: list[str], regions: list[str]) -> dic
 
 
 def get_path_metadata_dict(report_paths: list[str], regions: list[str]) -> dict[str, str]:
-    return {path: region for region, path in zip(regions, report_paths) if 'Report' in path}
+    return {path: region for region, path in zip(regions, report_paths)}
 
 
 def get_replace_region(path_region) -> None:
@@ -60,7 +62,9 @@ def get_replace_region(path_region) -> None:
         with open(path, "w", encoding="utf-8") as f:
             f.write(content)
 
+
 def get_replace_report_name(path_region) -> None:
+    print( path_region)
     for path, region in path_region.items():
         with open(path, "r", encoding="utf-8") as f:
             content = f.read()
