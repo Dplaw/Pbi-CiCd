@@ -56,10 +56,15 @@ table 'Payment Status_fct'
 		mode: import
 		source =
 				let
-				    Source = Csv.Document(File.Contents("C:\Users\dplaw\Desktop\Pbi climb\Payment Status.csv"),[Delimiter=",", Columns=4, Encoding=65001, QuoteStyle=QuoteStyle.None]),
-				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}, {"Column4", type text}}),
-				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
-				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"Country", type text}, {"Client ID", type text}, {"Fiscal Quarter", type text}, {"Payment Status", type text}}),
+				    Source = MySQL.Database(
+				        "localhost",
+				        "sales",
+				        [
+				            ReturnSingleDatabase = true,
+				            Query = "SELECT * FROM sales.`payment status`"
+				        ]
+				    ),
+				    #"Changed Type1" = Table.TransformColumnTypes(Source,{{"Country", type text}, {"Client ID", type text}, {"Fiscal Quarter", type text}, {"Payment Status", type text}}),
 				    #"Inserted Merged Column" = Table.AddColumn(#"Changed Type1", "ClientBridge_key", each Text.Combine({[Country], [Client ID]}, "-"), type text),
 				    #"Added Conditional Column" = Table.AddColumn(#"Inserted Merged Column", "Quarter Start ", each if [Fiscal Quarter] = "Q1" then #date(2025, 1, 1) else if [Fiscal Quarter] = "Q2" then #date(2025, 4, 1) else if [Fiscal Quarter] = "Q3" then #date(2025, 7, 1) else if [Fiscal Quarter] = "Q4" then #date(2025, 10, 1) else null),
 				    #"Renamed Columns" = Table.RenameColumns(#"Added Conditional Column",{{"Quarter Start ", "Quarter Start"}}),

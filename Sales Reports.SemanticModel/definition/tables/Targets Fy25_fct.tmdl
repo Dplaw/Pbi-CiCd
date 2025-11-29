@@ -17,24 +17,6 @@ table 'Targets Fy25_fct'
 
 		annotation SummarizationSetBy = Automatic
 
-	column 'Business Unit'
-		dataType: string
-		lineageTag: c7985f2e-784d-4101-9996-22b3f76ed1c7
-		summarizeBy: none
-		sourceColumn: Business Unit
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'Sales Target in USD'
-		dataType: double
-		lineageTag: 9049d229-e029-4823-8360-17b66a1cb544
-		summarizeBy: sum
-		sourceColumn: Sales Target in USD
-
-		annotation SummarizationSetBy = Automatic
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
 	column Client_Key
 		dataType: string
 		lineageTag: e6a975bd-39b9-4e8b-a8ea-9de6962353ad
@@ -54,15 +36,37 @@ table 'Targets Fy25_fct'
 
 		annotation UnderlyingDateTimeDataType = Date
 
+	column 'Business Unit'
+		dataType: string
+		lineageTag: eb84fe7e-e02b-4b39-a2eb-d6cd7cb6b42c
+		summarizeBy: none
+		sourceColumn: Business Unit
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sales Target in USD'
+		dataType: double
+		lineageTag: becac328-30e9-4040-ab12-9f05a135efb8
+		summarizeBy: sum
+		sourceColumn: Sales Target in USD
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
 	partition 'Targets Fy25_fct' = m
 		mode: import
 		source =
 				let
-				    Source = Excel.Workbook(File.Contents("C:\Users\dplaw\Desktop\Pbi climb\Targets FY25.xlsx"), null, true),
-				    #"Targets Fy25_Sheet" = Source{[Item="Targets Fy25",Kind="Sheet"]}[Data],
-				    #"Promoted Headers" = Table.PromoteHeaders(#"Targets Fy25_Sheet", [PromoteAllScalars=true]),
-				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Country", type text}, {"Client ID", type text}, {"Business Unit", type text}, {"Sales Target in USD", type number}}),
-				    InsertedMergedColumn = Table.AddColumn(#"Changed Type", "Client_Key", each Text.Combine({[Country], [Business Unit], [Client ID]}, "-"), type text),
+				    Source = MySQL.Database(
+				        "localhost",
+				        "sales",
+				        [
+				            ReturnSingleDatabase = true,
+				            Query = "SELECT * FROM sales.targets25"
+				        ]
+				    ),
+				    InsertedMergedColumn = Table.AddColumn(Source, "Client_Key", each Text.Combine({[Country], [Business Unit], [Client ID]}, "-"), type text),
 				    FY = Table.AddColumn(InsertedMergedColumn, "FyEnd", each #date(2025, 12, 31), type date)
 				in
 				    FY

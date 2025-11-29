@@ -29,9 +29,19 @@ table location_dim
 		mode: import
 		source =
 				let
-				    Source = Excel.Workbook(File.Contents("C:\Users\dplaw\Desktop\Pbi climb\Country-Hub-Region.xlsx"), null, true),
-				    Table1_Table = Source{[Item="Table1",Kind="Table"]}[Data],
-				    #"Changed Type" = Table.TransformColumnTypes(Table1_Table,{{"Kraj", type text}, {"Hub", type text}, {"Region", type text}})
+				    SQL = "SELECT * FROM sales.countryhubregion WHERE Region = '" & Parameter1 & "'",
+				    Source = MySQL.Database(
+				        "localhost",
+				        "sales",
+				        [
+				            ReturnSingleDatabase = true,
+				            Query = SQL
+				        ]
+				    ),
+				    #"Changed Type" = Table.TransformColumnTypes(
+				        Source,
+				        {{"Kraj", type text}, {"Hub", type text}, {"Region", type text}}
+				    )
 				in
 				    #"Changed Type"
 

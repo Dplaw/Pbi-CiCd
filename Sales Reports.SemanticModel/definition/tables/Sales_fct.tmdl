@@ -91,10 +91,16 @@ table Sales_fct
 		mode: import
 		source =
 				let
-				    Source = Excel.Workbook(File.Contents("C:\Users\dplaw\Desktop\Pbi climb\Sales.xlsx"), null, true),
-				    Sales_Sheet = Source{[Item="Sales",Kind="Sheet"]}[Data],
-				    #"Promoted Headers" = Table.PromoteHeaders(Sales_Sheet, [PromoteAllScalars=true]),
-				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Client ID", type text}, {"Country", type text}, {"Business Unit", type text}, {"Product ID", type text}, {"Month_Year", type date}, {"Sales in USD", type number}, {"Sales in Units", Int64.Type}}),
+				    SQL = "SELECT * FROM sales.sales",
+				    Source = MySQL.Database(
+				        "localhost",
+				        "sales",
+				        [
+				            ReturnSingleDatabase = true,
+				            Query = SQL
+				        ]
+				    ),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Client ID", type text}, {"Country", type text}, {"Business Unit", type text}, {"Product ID", type text}, {"Month_Year", type date}, {"Sales in USD", type number}, {"Sales in Units", Int64.Type}}),
 				    #"Inserted Merged Column" = Table.AddColumn(#"Changed Type", "Client_Key", each Text.Combine({[Country], [Business Unit], [Client ID]}, "-"), type text),
 				    #"Inserted Quarter" = Table.AddColumn(#"Inserted Merged Column", "Quarter", each Date.QuarterOfYear([Month_Year]), Int64.Type),
 				    #"Changed Type1" = Table.TransformColumns(#"Inserted Quarter", {{"Quarter", each "Q" & Text.From(_), type text}}),
