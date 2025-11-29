@@ -1,0 +1,59 @@
+table 'USD vs UNIT'
+	lineageTag: 8fd03d78-db9b-498c-bac7-5831fed3e01a
+
+	column Parameter
+		lineageTag: e1dbe908-2627-46d6-86d5-33f655705d80
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Parameter Order'
+
+		relatedColumnDetails
+			groupByColumn: 'Parameter Fields'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Parameter Fields'
+		isHidden
+		lineageTag: 86aeeade-07c5-4e2d-8ec1-9323052bb8aa
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Parameter Order'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Parameter Order'
+		isHidden
+		formatString: 0
+		lineageTag: bfea6074-4214-480f-9a0d-3342fdd4c855
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Value4
+		lineageTag: 8ad567a0-aded-40c6-8d08-6182ea61713b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Value4]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'USD vs UNIT' = calculated
+		mode: import
+		source =
+				{
+				    ("Sales USD", NAMEOF('_Measures'[Sales USD]), 1, "USD"),
+				    ("PY Sales", NAMEOF('_Measures'[Sales USD PY]), 2, "USD"),
+				    ("Sales Units", NAMEOF('_Measures'[Sales Units]), 3, "Units"),
+				    ("PY Sales", NAMEOF('_Measures'[Sales Units PY]), 4, "Units")
+				
+				}
+
+	annotation PBI_Id = 1ff1e821327142f196972b9de77d860d
+
