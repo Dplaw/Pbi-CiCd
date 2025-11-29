@@ -38,8 +38,16 @@ def get_expressions_path(paths: list[str], regions: list[str] ) -> list[str]:
     return [os.path.join(path, "definition", "expressions.tmdl") for path in paths if 'SemanticModel' in path]
 
 
+def get_metadata_path(paths: list[str], regions: list[str] ) -> list[str]:
+    return [os.path.join(path, ".platform") for path in paths if 'SemanticModel' in path]
+
+
 def get_path_region_dict(expressions_path: list[str], regions: list[str]) -> dict[str, str]:
     return {path: region for region, path in zip(regions, expressions_path)}
+
+
+def get_path_metadata_dict(report_paths: list[str], regions: list[str]) -> dict[str, str]:
+    return {path: region for region, path in zip(regions, report_paths) if 'Report' in path}
 
 
 def get_replace_region(path_region) -> None:
@@ -52,6 +60,17 @@ def get_replace_region(path_region) -> None:
         with open(path, "w", encoding="utf-8") as f:
             f.write(content)
 
+def get_replace_report_name(path_region) -> None:
+    for path, region in path_region.items():
+        with open(path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        content = content.replace("Sales Reports", f"Sales Reports_{region}")
+
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(content)
+
+
 def main(region_path: str, src_report: str, src_semantic_model: str) -> None:
     regions = get_params(region_path)
     paths = get_path(regions)
@@ -60,8 +79,10 @@ def main(region_path: str, src_report: str, src_semantic_model: str) -> None:
     copy_semantic_model = get_copy_semantic_model(src_semantic_model, paths)
     expressions_path = get_expressions_path(paths, regions)
     path_region_dict = get_path_region_dict(expressions_path, regions)
+    metadata_path = get_metadata_path(paths, regions)
+    metadata_dict = get_path_metadata_dict(metadata_path, regions)
+    get_replace_report_name(metadata_dict)
     get_replace_region(path_region_dict)
-
 
 
 if __name__ == "__main__":
