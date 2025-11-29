@@ -94,3 +94,5 @@ if __name__ == "__main__":
     semantic_model = 'Sales Reports.SemanticModel'
     report = 'Sales Reports.Report'
     main(region_path, report, semantic_model)
+
+# End of scripts/generate_regions.py
