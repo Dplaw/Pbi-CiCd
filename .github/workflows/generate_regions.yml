@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'generate_regions.py'
+      - 'scripts/generate_regions.py'
       - 'Sales Reports.pbip'
       - 'Sales Reports.Report/**'
       - 'Sales Reports.SemanticModel/**'
@@ -26,8 +26,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pyyaml   # lub inne biblioteki, jeśli Twój skrypt ich używa
+          pip install pyyaml
 
       - name: Run generation script
         run: |
-          python generate_regions.py
+          python scripts/generate_regions.py
