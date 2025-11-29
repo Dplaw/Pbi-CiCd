@@ -31,3 +31,18 @@ jobs:
       - name: Run generation script
         run: |
           python scripts/generate_regions.py
+
+      - name: Commit and push generated reports
+        run: |
+          echo "Git status before commit:"
+          git status --porcelain
+          
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add .
+            git commit -m "Auto-generate regional reports"
+            git push
+          else
+            echo "No changes to commit."
+          fi
