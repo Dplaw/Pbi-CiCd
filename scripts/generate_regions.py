@@ -13,7 +13,7 @@ def get_config(region_path):
 
 def get_path(regions):
     folders = os.listdir(os.getcwd())
-    return {os.path.join(f'{folder}_{region}') : region
+    return {os.path.join(folder.replace('Sales Reports', f'Sales Reports_{region}')) : region
             for folder in folders 
             for region in regions['regions']
             if folder in ['Sales Reports.Report', 'Sales Reports.SemanticModel']}
