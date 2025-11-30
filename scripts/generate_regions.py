@@ -38,7 +38,7 @@ def dispatch_dict(condition, region ):
         'Sales Reports': lambda: {'Sales Reports': 'Sales Reports_' + f'{region}'},
         '425fb61c-735e-487b-aa42-ef7090c7a1da': lambda: {'425fb61c-735e-487b-aa42-ef7090c7a1da': str(uuid4())},
         'C&EE': lambda: {'C&EE': f'{region}'},
-        'dbe47bff-d84f-428b-b014-a76f19ad9f91': lambda: {'dbe47bff-d84f-428b-b014-a76f19ad9f91': f'{region}'},
+        'dbe47bff-d84f-428b-b014-a76f19ad9f91': lambda: {'dbe47bff-d84f-428b-b014-a76f19ad9f91': str(uuid4())},
     }.get(condition, lambda: None)()
 
 
