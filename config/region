@@ -2,6 +2,8 @@
   "templateRegion": "C&EE",
   "regions": [
     "MENAT",
-    "C&EE"
+    "C&EE",
+    "Africa",
+    "Nordic"
   ]
 }
