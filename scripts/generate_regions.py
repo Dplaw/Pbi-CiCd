@@ -36,9 +36,9 @@ def get_copy_dependencies(report_paths, semantimodel_path, report_path):
 def dispatch_dict(condition, region ):
     return {
         'Sales Reports': lambda: {'Sales Reports': 'Sales Reports_' + f'{region}'},
-        '1aa71ee4-8fcb-4383-b39b-b24bb2b286c5': lambda: {'1aa71ee4-8fcb-4383-b39b-b24bb2b286c5': str(uuid4())},
+        '425fb61c-735e-487b-aa42-ef7090c7a1da': lambda: {'425fb61c-735e-487b-aa42-ef7090c7a1da': str(uuid4())},
         'C&EE': lambda: {'C&EE': f'{region}'},
-        '51349b6c-9f00-4c57-b18d-b365ea909872': lambda: {'51349b6c-9f00-4c57-b18d-b365ea909872': f'{region}'},
+        'dbe47bff-d84f-428b-b014-a76f19ad9f91': lambda: {'dbe47bff-d84f-428b-b014-a76f19ad9f91': f'{region}'},
     }.get(condition, lambda: None)()
 
 
