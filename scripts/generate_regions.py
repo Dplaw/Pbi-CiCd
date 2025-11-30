@@ -16,7 +16,7 @@ def get_path(regions):
     return {os.path.join(folder.replace('Sales Reports', f'Sales Reports_{region}')) : region
             for folder in folders 
             for region in regions['regions']
-            if folder in ['Sales Reports.SemanticModel']}
+            if folder in ['Sales Reports.Report', 'Sales Reports.SemanticModel']}
 
 
 def create_directory(report_paths): 
@@ -74,6 +74,7 @@ def main(region_path: str, attributes: str, src_report: str, src_semantic_model:
     dispatch = dispatch_dict
     all_attributes = get_all_attributes(regions, attributes, dispatch)
     replace = replacer(all_attributes)
+    pprint(all_attributes)
 
 
 if __name__ == "__main__":
