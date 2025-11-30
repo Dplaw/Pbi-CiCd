@@ -82,4 +82,4 @@ if __name__ == "__main__":
     report_attributes = 'config/report_attributes'
     semantic_model = 'Sales Reports.SemanticModel'
     report = 'Sales Reports.Report'
-    main(region_path, report_attributes, report, semantic_model)\
+    main(region_path, report_attributes, report, semantic_model)
