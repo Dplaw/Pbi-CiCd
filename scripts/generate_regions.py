@@ -48,7 +48,7 @@ def get_all_attributes(regions, attributes, func):
     for attr_key, attr_value in attributes.items():
         for region in regions['regions']:
             idx = attr_key.find("/")
-            path = os.path.join(attr_key[:idx] + f"_{region}", attr_key[idx+1:])
+            path = os.path.join(attr_key[:idx].replace('Sales Reports', f'Sales Reports_{region}'), attr_key[idx+1:])
             new_value = [func(i, region) for i in attr_value]
             results.update({path: new_value})
     return results
