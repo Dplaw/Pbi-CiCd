@@ -2,7 +2,6 @@ import os
 import shutil
 from json import loads
 from uuid import uuid4
-from pprint import pprint
 
 
 def get_config(region_path):
@@ -74,7 +73,7 @@ def main(region_path: str, attributes: str, src_report: str, src_semantic_model:
     dispatch = dispatch_dict
     all_attributes = get_all_attributes(regions, attributes, dispatch)
     replace = replacer(all_attributes)
-    pprint(all_attributes)
+    print(all_attributes)
 
 
 if __name__ == "__main__":
