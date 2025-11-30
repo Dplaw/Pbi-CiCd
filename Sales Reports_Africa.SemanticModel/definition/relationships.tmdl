@@ -1,0 +1,46 @@
+relationship a82d21e9-ef7a-f356-e6a3-46929f31ec9b
+	fromColumn: 'Payment Status_fct'.Country
+	toColumn: location_dim.Kraj
+
+relationship 9c23bb2e-3272-a9db-b4ee-8bbf24b301e5
+	fromColumn: Sales_fct.Country
+	toColumn: location_dim.Kraj
+
+relationship 2a508fda-cfb7-312c-93c0-43eb0db929c6
+	fromColumn: 'Targets Fy25_fct'.Country
+	toColumn: location_dim.Kraj
+
+relationship 634444ae-e421-cf2d-8bf5-f5e3856816eb
+	fromColumn: Sales_fct.Client_Key
+	toColumn: Client_dim.Client_Key
+
+relationship c4e3ee9b-dc26-1831-5dee-1f7851a0da59
+	fromColumn: 'Targets Fy25_fct'.Client_Key
+	toColumn: Client_dim.Client_Key
+
+relationship 1f5826a6-e583-2c3b-6d05-a94398ffa0c0
+	crossFilteringBehavior: bothDirections
+	fromColumn: Client_dim.ClientBridge_key
+	toColumn: Client_bridge_dim.ClientBridge_key
+
+relationship AutoDetected_9df231a3-8a67-4773-a322-1d3223e9fa40
+	fromColumn: 'Payment Status_fct'.ClientBridge_key
+	toColumn: Client_bridge_dim.ClientBridge_key
+
+relationship ee318584-77f4-4ea2-b566-4bdebe32d5ab
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Calendar.Date
+	toColumn: LocalDateTable_11b08263-a058-4e55-9270-f159d0aba9f8.Date
+
+relationship eae4b290-a087-e8fb-86cb-844b203a44b7
+	fromColumn: Sales_fct.Month_Year
+	toColumn: Calendar.Date
+
+relationship 43a58b8d-857d-e3ba-b615-dc53bedf20e4
+	fromColumn: 'Targets Fy25_fct'.FyEnd
+	toColumn: Calendar.Date
+
+relationship 025b688a-de4e-93de-ff69-5df5301113e3
+	fromColumn: 'Payment Status_fct'.'Quarter Start'
+	toColumn: Calendar.Date
+

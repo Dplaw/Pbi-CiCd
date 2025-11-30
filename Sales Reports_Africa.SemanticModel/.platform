@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Sales Reports_Africa"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "321207f8-2d44-4b22-85dc-2f904c9fe8d3"
+  }
+}

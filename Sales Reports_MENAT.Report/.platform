@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Sales Reports_MENAT"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "0a584076-b965-49dc-8c2a-3168ca042c67"
+  }
+}
