@@ -1,98 +1,83 @@
 import os 
 import shutil
 from json import loads
+from uuid import uuid4
+from pprint import pprint
 
 
-def get_params(region_path: str) -> list[str]:
+def get_config(region_path):
     with open(region_path, 'r') as f:
         config = f.read()
-    return loads(config)['regions']
+    return loads(config)
 
 
-def get_path(regions: list[str]) -> list[str]:
+def get_path(regions):
     folders = os.listdir(os.getcwd())
-    return [os.path.join(f'{folder}_{region}')
-            for region in regions
+    return {os.path.join(f'{folder}_{region}') : region
             for folder in folders 
-            if folder == 'Sales Reports.Report' or folder == 'Sales Reports.SemanticModel']
+            for region in regions['regions']
+            if folder in ['Sales Reports.Report', 'Sales Reports.SemanticModel']}
 
 
-def create_directory(report_paths: list[str]) -> None: 
-    for new_path in report_paths:
+def create_directory(report_paths): 
+    for new_path in report_paths.keys():
         if os.path.exists(new_path):
             shutil.rmtree(new_path)  
-        os.makedirs(new_path) 
+        os.makedirs(new_path)
 
 
-def get_copy_report(src: str, dests: list[str]) -> None:
-    for dir in dests:
-        if 'Reports.Report' in dir:
-            shutil.copytree(src, dir, dirs_exist_ok=True)
+def get_copy_dependencies(report_paths, semantimodel_path, report_path):
+    for path in report_paths.keys():
+        if 'SemanticModel' in path:
+            shutil.copytree(semantimodel_path, path, dirs_exist_ok=True)
+        elif 'Report' in path:
+            shutil.copytree(report_path, path, dirs_exist_ok=True)
 
 
-def get_copy_semantic_model(src: str, dests: list[str]) -> None:
-    for dir in dests:
-        if 'SemanticModel' in dir:
-            shutil.copytree(src, dir, dirs_exist_ok=True)
+def dispatch_dict(condition, region ):
+    return {
+        'Sales Reports': lambda: {'Sales Reports': 'Sales Reports_' + f'{region}'},
+        '1aa71ee4-8fcb-4383-b39b-b24bb2b286c5': lambda: {'1aa71ee4-8fcb-4383-b39b-b24bb2b286c5': str(uuid4())},
+        'C&EE': lambda: {'C&EE': f'{region}'}
+    }.get(condition, lambda: None)()
 
 
-def get_expressions_path(paths: list[str], regions: list[str] ) -> list[str]:
-    return [os.path.join(path, "definition", "expressions.tmdl") for path in paths if 'SemanticModel' in path]
+def get_all_attributes(regions, attributes, func):
+    results = {}
+    for attr_key, attr_value in attributes.items():
+        for region in regions['regions']:
+            idx = attr_key.find("\\")
+            path = os.path.join(attr_key[:idx] + f"_{region}", attr_key[idx+1:])
+            new_value = [func(i, region) for i in attr_value]
+            results.update({path: new_value})
+    return results
 
 
-def get_metadata_path(paths: list[str], regions: list[str] ) -> list[str]:
-    return [os.path.join(path, ".platform") for path in paths]
-
-
-def get_path_region_dict(expressions_path: list[str], regions: list[str]) -> dict[str, str]:
-    return {path: region for region, path in zip(regions, expressions_path)}
-
-
-def get_path_metadata_dict(report_paths: list[str], regions: list[str]) -> dict[str, str]:
-    return {path: region for region, path in zip(regions, report_paths)}
-
-
-def get_replace_region(path_region) -> None:
-    for path, region in path_region.items():
+def replacer(dict_obj):
+    for path, values in dict_obj.items():
         with open(path, "r", encoding="utf-8") as f:
             content = f.read()
-
-        content = content.replace("C&EE", region)
-
+        for value in values:
+            for old, new in value.items():
+                content = content.replace(old, new)
         with open(path, "w", encoding="utf-8") as f:
             f.write(content)
 
 
-def get_replace_report_name(path_region) -> None:
-    print( path_region)
-    for path, region in path_region.items():
-        with open(path, "r", encoding="utf-8") as f:
-            content = f.read()
-
-        content = content.replace("Sales Reports", f"Sales Reports_{region}")
-
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(content)
-
-
-def main(region_path: str, src_report: str, src_semantic_model: str) -> None:
-    regions = get_params(region_path)
+def main(region_path: str, attributes: str, src_report: str, src_semantic_model: str) -> None:
+    regions = get_config(region_path)
     paths = get_path(regions)
-    directory = create_directory(paths)
-    copy_report = get_copy_report(src_report, paths)
-    copy_semantic_model = get_copy_semantic_model(src_semantic_model, paths)
-    expressions_path = get_expressions_path(paths, regions)
-    path_region_dict = get_path_region_dict(expressions_path, regions)
-    metadata_path = get_metadata_path(paths, regions)
-    metadata_dict = get_path_metadata_dict(metadata_path, regions)
-    get_replace_report_name(metadata_dict)
-    get_replace_region(path_region_dict)
+    attributes = get_config(attributes)
+    dirs = create_directory(paths)
+    copy = get_copy_dependencies(paths, src_semantic_model, src_report)
+    dispatch = dispatch_dict
+    all_attributes = get_all_attributes(regions, attributes, dispatch)
+    replace = replacer(all_attributes)
 
 
 if __name__ == "__main__":
     region_path = 'config/region'
+    report_attributes = 'config/report_attributes'
     semantic_model = 'Sales Reports.SemanticModel'
     report = 'Sales Reports.Report'
-    main(region_path, report, semantic_model)
-
-# End of scripts/generate_regions.py
+    main(region_path, report_attributes, report, semantic_model)
