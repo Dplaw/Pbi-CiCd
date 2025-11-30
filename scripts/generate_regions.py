@@ -16,7 +16,7 @@ def get_path(regions):
     return {os.path.join(folder.replace('Sales Reports', f'Sales Reports_{region}')) : region
             for folder in folders 
             for region in regions['regions']
-            if folder in ['Sales Reports.Report', 'Sales Reports.SemanticModel']}
+            if folder in ['Sales Reports.SemanticModel']}
 
 
 def create_directory(report_paths): 
