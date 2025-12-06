@@ -1,0 +1,12 @@
+{
+    "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+    "metadata": {
+        "type": "Report",
+        "displayName": "template"
+    },
+    "config": {
+        "version": "2.0",
+        "logicalId": "d36886f9-44d4-5fbe-986e-78d751ff045f",
+        "displayName": "C&EE"
+    }
+}

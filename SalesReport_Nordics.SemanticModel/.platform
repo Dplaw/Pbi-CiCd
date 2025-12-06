@@ -1,0 +1,12 @@
+{
+    "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+    "metadata": {
+        "type": "SemanticModel",
+        "displayName": "template"
+    },
+    "config": {
+        "version": "2.0",
+        "logicalId": "ce346d5b-5944-5a12-9b91-b2d679c17e04",
+        "displayName": "Nordics"
+    }
+}
