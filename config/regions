@@ -1,0 +1,11 @@
+{
+   "regions":[
+      "MENAT",
+      "C&EE",
+      "Africa",
+      "Nordics"
+   ],
+   "naming":{
+      "prefix":"SalesReport_"
+   }
+}

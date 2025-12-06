@@ -1,0 +1,12 @@
+{
+   "base_path":"template",
+   "template_report":"template.Report",
+   "template_model":"template.SemanticModel",
+   "model_attributes":{
+      "model_platform":".platform"
+   },
+   "report_attributes":{
+      "report_platform":".platform",
+      "report_definition":"definition.pbir"
+   }
+}
