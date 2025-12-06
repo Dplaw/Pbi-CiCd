@@ -4,11 +4,27 @@ on:
   push:
     branches: [ main ]
     paths:
+      # skrypt generujący
       - 'scripts/generate_regions.py'
-      - 'Sales Reports.pbip'
-      - 'Sales Reports.Report/**'
-      - 'Sales Reports.SemanticModel/**'
-      - 'regions.yml'
+
+      # moduły logiki PBIP
+      - 'config_reader.py'
+      - 'models_manager.py'
+      - 'report_creator.py'
+      - 'metadata_editor.py'
+
+      # pliki konfiguracyjne
+      - 'regions'
+      - 'template_report_config'
+
+      # plik bazowego PBIP (jeśli dalej używasz jednego pbip jako wzoru)
+      - '*.pbip'
+
+      # foldery PBIP dla raportów i modeli
+      - '*.Report/**'
+      - '*.SemanticModel/**'
+
+      # sam workflow
       - '.github/workflows/generate_regions.yml'
 
 jobs:
@@ -19,18 +35,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0          # potrzebne, żeby git pull --rebase działał poprawnie
-          # jeśli używasz PAT zamiast GITHUB_TOKEN, odkomentuj:
-          # token: ${{ secrets.PAT_TOKEN }}
+          fetch-depth: 0
+
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: |
-          pip install pyyaml
 
       - name: Run generation script
         run: |
@@ -49,10 +61,7 @@ jobs:
             git add .
             git commit -m "Auto-generate regional reports"
 
-            # pobierz najnowsze zmiany z remote i nałóż commit z Actions na górę
             git pull --rebase origin "$BRANCH_NAME"
-
-            # wypchnij zaktualizowaną gałąź
             git push origin HEAD:"$BRANCH_NAME"
           else
             echo "No changes to commit."
