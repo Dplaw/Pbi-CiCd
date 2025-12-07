@@ -4,10 +4,10 @@
   "position": {
     "x": 0,
     "y": 0,
-    "z": 8000,
-    "height": 58.976109215017061,
-    "width": 116.10921501706484,
-    "tabOrder": 8000
+    "z": 7001,
+    "height": 65.426621160409553,
+    "width": 150.20477815699658,
+    "tabOrder": 7001
   },
   "visual": {
     "visualType": "cardVisual",
@@ -40,14 +40,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
-                }
-              }
-            },
-            "bold": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
+                  "Value": "20D"
                 }
               }
             },
@@ -56,8 +49,8 @@
                 "color": {
                   "expr": {
                     "ThemeDataColor": {
-                      "ColorId": 2,
-                      "Percent": 0
+                      "ColorId": 4,
+                      "Percent": 0.2
                     }
                   }
                 }
