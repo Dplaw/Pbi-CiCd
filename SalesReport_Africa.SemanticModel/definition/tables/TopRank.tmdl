@@ -1,0 +1,26 @@
+table TopRank
+	lineageTag: 2819c344-fce6-485b-89e0-fbe60ff5d535
+
+	measure 'TopRank Value' = SELECTEDVALUE('TopRank'[TopRank])
+		formatString: 0
+		lineageTag: b713c3f9-35ed-4e05-a1e1-3689defc8c78
+
+	column TopRank
+		formatString: 0
+		lineageTag: 168bb326-a28c-4d72-aa90-6c79add71700
+		summarizeBy: none
+		sourceColumn: [Value]
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 0
+				}
+
+		annotation SummarizationSetBy = User
+
+	partition TopRank = calculated
+		mode: import
+		source = GENERATESERIES(1, 10, 1)
+
+	annotation PBI_Id = 2fc6449f9e1445a78cb8d3dbfc398f96
+
