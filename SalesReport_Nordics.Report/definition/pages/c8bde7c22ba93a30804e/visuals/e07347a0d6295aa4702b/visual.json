@@ -5,8 +5,8 @@
     "x": 0,
     "y": 0,
     "z": 7001,
-    "height": 65.172413793103445,
-    "width": 70.49261083743842,
+    "height": 65.426621160409553,
+    "width": 150.20477815699658,
     "tabOrder": 7001
   },
   "visual": {
@@ -40,7 +40,19 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "12D"
+                  "Value": "20D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 4,
+                      "Percent": 0.2
+                    }
+                  }
                 }
               }
             }
@@ -79,6 +91,19 @@
           },
           "selector": {
             "id": "default"
+          }
+        }
+      ],
+      "fillCustom": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
           }
         }
       ]
