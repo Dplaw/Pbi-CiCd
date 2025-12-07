@@ -29,11 +29,8 @@ def _create_or_update_model(template: PowerBiTemplateConfig, plan: ExpectedPbiRe
     shutil.copytree(template.template_model, plan.expected_model_path, dirs_exist_ok=True)
 
     platform = _load_json(plan.model_platform)
-    platform.setdefault("config", {})
-
-    model_prefix = getattr(template, "model_prefix", "")
-    display_name = f"{model_prefix}{plan.region_code}"
-    platform["config"]["displayName"] = display_name
+    platform["config"]["displayName"] = plan.report_name
+    platform["metadata"]["displayName"] = plan.report_name
 
     if existing_logical_id:
         platform["config"]["logicalId"] = existing_logical_id
@@ -45,19 +42,15 @@ def _create_or_update_model(template: PowerBiTemplateConfig, plan: ExpectedPbiRe
 def _create_or_update_report(template: PowerBiTemplateConfig, plan: ExpectedPbiReportInfo) -> None:
 
     existing_logical_id = None
-
-    if plan.expected_report_platform.exists():
+    if plan.report_exist:
         old_platform = _load_json(plan.expected_report_platform)
         existing_logical_id = old_platform.get("config", {}).get("logicalId")
 
     shutil.copytree(template.template_report, plan.expected_report_path, dirs_exist_ok=True)
 
     platform = _load_json(plan.expected_report_platform)
-    platform.setdefault("config", {})
-
-    report_prefix = getattr(template, "report_prefix", "")
-    display_name = f"{report_prefix}{plan.region_code}"
-    platform["config"]["displayName"] = display_name
+    platform["config"]["displayName"] = plan.report_name
+    platform["metadata"]["displayName"] = plan.report_name
 
     if existing_logical_id:
         platform["config"]["logicalId"] = existing_logical_id
@@ -66,8 +59,8 @@ def _create_or_update_report(template: PowerBiTemplateConfig, plan: ExpectedPbiR
 
     _save_json(plan.expected_report_platform, platform)
 
-    if hasattr(template, "expected_report_definition"):
-        _update_report_definition(template, plan)
+    if hasattr(plan, "expected_report_definition"):
+        _update_report_definition(plan)
 
 
 def _load_json(path: Path | str) -> Dict[str, Any]:
@@ -90,32 +83,3 @@ def _update_report_definition(plan: ExpectedPbiReportInfo) -> None:
     definition = _load_json(path)
     definition["datasetReference"]["byPath"]["path"] = f"../{plan.expected_model_path}"
     _save_json(path, definition)
-
-
-if __name__ == "__main__":
-    plan = ExpectedPbiReportInfo(
-        region_code='Nordics',
-        expected_model_path='SalesReport_Nordics.SemanticModel',
-        expected_report_path='SalesReport_Nordics.Report',
-        model_platform='SalesReport_Nordics.SemanticModel/.platform',
-        expected_report_platform='SalesReport_Nordics.Report/.platform',
-        expected_report_definition='SalesReport_Nordics.Report/definition.pbir',
-        model_exist=True,
-    )
-
-    template = PowerBiTemplateConfig(
-        base_path='template',
-        template_model='template/template.SemanticModel',
-        template_report='template/template.Report',
-        model_platform='template/template.SemanticModel/.platform',
-        report_platform='template/template.Report/.platform',
-        report_definition='template/template.Report/definition.pbir',
-        template_model_metadata_type='SemanticModel',
-        template_model_metadata_name='template',
-        template_model_config_id='67397ec8-d04c-4595-b156-3678c05a0040',
-        template_report_metadata_type='Report',
-        template_report_metadata_name='template',
-        template_report_metadata_model_reference_path='../template.SemanticModel'
-    )
-
-    mdef = _update_report_definition(plan)

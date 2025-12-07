@@ -20,7 +20,10 @@ class ExpectedPbiReportInfo:
     expected_report_platform: Path
     expected_report_definition: Path
 
+    report_name: str
+
     model_exist: bool
+    report_exist: bool
 
 def _load_json(path: Path | str) -> Dict[str, Any]:
     path = Path(path)
@@ -55,8 +58,17 @@ def get_expected_report_definition(report_path: Path) -> Path:
     return Path(report_path, "definition.pbir")
 
 
+def get_report_name(region_data: Dict[str, Any], region: str, base_path: Path = BASE_PATH):
+    report_prefix = region_data["naming"]["prefix"]
+    return report_prefix + region
+
+
 def if_model_exist(expected_model_path : Path) -> bool:
     return expected_model_path.exists()
+
+
+def if_report_exist(expected_report_path : Path) -> bool:
+    return expected_report_path.exists()
 
     
 def get_expected_reports(region_config_path: Path | str = REGION_CONFIG_FILE) -> List[ExpectedPbiReportInfo]:
@@ -71,7 +83,9 @@ def get_expected_reports(region_config_path: Path | str = REGION_CONFIG_FILE) ->
         model_platform = get_model_platform(expected_model_path)
         expected_report_platform = get_expected_report_platform(expected_report_path)
         expected_report_definition = get_expected_report_definition(expected_report_path)
+        report_name = get_report_name(regions_config_data, region)
         model_exist = if_model_exist(expected_model_path)
+        report_exist = if_report_exist(expected_report_path)
         info = ExpectedPbiReportInfo(
             region_code=region,
             expected_model_path=expected_model_path,
@@ -79,7 +93,9 @@ def get_expected_reports(region_config_path: Path | str = REGION_CONFIG_FILE) ->
             model_platform=model_platform,
             expected_report_platform=expected_report_platform,
             expected_report_definition=expected_report_definition,
-            model_exist=model_exist
+            report_name=report_name,
+            model_exist=model_exist,
+            report_exist=report_exist
         )
         result.append(info)
     return result
