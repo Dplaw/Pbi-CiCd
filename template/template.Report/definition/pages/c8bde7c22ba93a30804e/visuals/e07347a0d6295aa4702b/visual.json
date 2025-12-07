@@ -2,12 +2,12 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
   "name": "e07347a0d6295aa4702b",
   "position": {
-    "x": 790.90443686006824,
+    "x": 928.87372013651873,
     "y": 0,
-    "z": 8000,
-    "height": 77.406143344709889,
-    "width": 338.19112627986345,
-    "tabOrder": 8000
+    "z": 7001,
+    "height": 97.679180887372013,
+    "width": 259.86348122866895,
+    "tabOrder": 7001
   },
   "visual": {
     "visualType": "cardVisual",
@@ -53,13 +53,6 @@
                       "Percent": 0.2
                     }
                   }
-                }
-              }
-            },
-            "fontFamily": {
-              "expr": {
-                "Literal": {
-                  "Value": "'''Arial Black'''"
                 }
               }
             }
