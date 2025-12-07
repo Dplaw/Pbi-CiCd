@@ -4,10 +4,10 @@
   "position": {
     "x": 0,
     "y": 0,
-    "z": 7001,
-    "height": 65.172413793103445,
-    "width": 70.49261083743842,
-    "tabOrder": 7001
+    "z": 8000,
+    "height": 58.976109215017061,
+    "width": 116.10921501706484,
+    "tabOrder": 8000
   },
   "visual": {
     "visualType": "cardVisual",
@@ -41,6 +41,25 @@
               "expr": {
                 "Literal": {
                   "Value": "12D"
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 2,
+                      "Percent": 0
+                    }
+                  }
                 }
               }
             }
@@ -79,6 +98,19 @@
           },
           "selector": {
             "id": "default"
+          }
+        }
+      ],
+      "fillCustom": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
           }
         }
       ]
