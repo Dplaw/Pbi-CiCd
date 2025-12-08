@@ -1,4 +1,4 @@
-expression Parameter1 = "C&EE" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+expression Parameter1 = "Africa" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: 599c69ea-66c1-4846-a903-3a287a5c7c70
 	queryGroup: Parm
 

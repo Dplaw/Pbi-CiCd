@@ -7,5 +7,13 @@
    ],
    "naming":{
       "prefix":"SalesReport_"
+   },
+   "paths":{
+      "expected_model_path":".SemanticModel",
+      "expected_report_path":".Report",
+      "model_platform":".SemanticModel/.platform",
+      "model_definition":".SemanticModel/definition/expressions.tmdl",
+      "expected_report_platform":".Report/.platform",
+      "expected_report_definition":".Report/definition.pbir"
    }
 }

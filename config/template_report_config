@@ -1,12 +1,13 @@
 {
    "base_path":"template",
-   "template_report":"template.Report",
-   "template_model":"template.SemanticModel",
    "model_attributes":{
-      "model_platform":".platform"
+      "template_model":"template/template.SemanticModel",
+      "model_platform":"template/template.SemanticModel/.platform",
+      "model_definition":"template/template.SemanticModel/definition/expressions.tmdl"
    },
    "report_attributes":{
-      "report_platform":".platform",
-      "report_definition":"definition.pbir"
+      "template_report":"template/template.Report",
+      "report_platform":"template/template.Report/.platform",
+      "report_definition":"template/template.Report/definition.pbir"
    }
 }
