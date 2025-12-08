@@ -9,5 +9,6 @@
       "template_report":"template/template.Report",
       "report_platform":"template/template.Report/.platform",
       "report_definition":"template/template.Report/definition.pbir"
-   }
+   },
+   "parameter_name": "Parameter1"
 }
