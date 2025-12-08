@@ -1,9 +1,8 @@
-from functools import lru_cache
 from dataclasses import dataclass
 from pathlib import Path
-import json
-from typing import Dict, List, Callable, Mapping
+from typing import Dict, List, Callable
 from pprint import pprint
+from utils import load_data, get_nested
 
 
 REGION_CONFIG_FILE = Path("config/regions")
@@ -25,28 +24,6 @@ class ExpectedPbiReportInfo:
     
     model_exist: bool
     report_exist: bool
-
-
-def _load_json(path: Path | str) -> Dict:
-    path = Path(path)
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-@lru_cache(maxsize=None)
-def load_data(path: Path | str) -> Dict:
-    return _load_json(path)
-
-
-def get_nested(mapping: Mapping, *keys, default=None):
-    current = mapping
-    for key in keys:
-        if not isinstance(current, Mapping):
-            return default
-        current = current.get(key, default)
-        if current is default:
-            return default
-    return current
 
 
 def get_all_expected_pbi_attributes(region: str, config_path: Path = REGION_CONFIG_FILE, loader: Callable = load_data) -> Dict[str, str | Path]:
