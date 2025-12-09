@@ -1,0 +1,32 @@
+table 'Filter Payment'
+	lineageTag: ced75ea3-aba9-4ade-a25f-624920392fe6
+
+	column Value1
+		lineageTag: 86370b8c-d0fc-45bd-acb1-09f4e49f7baf
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Value1]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Value2
+		formatString: 0
+		lineageTag: d645bf4a-a279-4b7a-bcd1-f90878ff19de
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Value2]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Filter Payment' = calculated
+		mode: import
+		source =
+				
+				{
+				("Overdue <=30 days", 0),
+				("Overdue >30 days", 1),
+				("Paid on time", 2)
+				}
+
+	annotation PBI_Id = aa3e557b22194281b333a29b66c1f602
+
