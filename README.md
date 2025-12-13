@@ -36,7 +36,7 @@ Each entry defines:
 region_code (e.g., "C&EE", "Nordics")
 prefix for folder naming
 target names for the model and report
-<pre>```
+<pre>
 .
 ├── config/
 │   ├── regions                     # List of all regions to generate
@@ -55,7 +55,7 @@ target names for the model and report
 │
 └── .github/workflows/
     └── generate_regions.yml        # CI/CD automation
-```
+
 </pre>
 How the Generation Process Works
 Below is the full workflow executed by generate_regions.py.
