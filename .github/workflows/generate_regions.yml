@@ -4,13 +4,9 @@ on:
   push:
     branches: [ main ]
     paths:
-      # odpala się przy każdej zmianie w folderze template
+      # odpala się przy każdej zmianie w folderze template oraz config
       - 'template/**'
-      # opcjonalnie: jeśli chcesz, żeby odpalało się też po zmianie workflow:
-      # - '.github/workflows/generate_regions.yml'
-
-  # opcjonalnie: jeśli chcesz mieć też uruchamianie ręczne z UI, odkomentuj:
-  # workflow_dispatch:
+      - 'config/**'
 
 jobs:
   generate:
