@@ -10,7 +10,6 @@ on:
       - 'config/**'
       - '.github/workflows/generate_regions.yml'
 
-# Zapobiega równoległym pushom i updateFromGit
 concurrency:
   group: generate-regions-main
   cancel-in-progress: false
@@ -21,9 +20,11 @@ permissions:
 jobs:
   generate:
     runs-on: ubuntu-latest
-
-    # 🔴 KLUCZOWE – bez tego Environment secrets NIE DZIAŁAJĄ
     environment: github-actions-powerbi
+
+    # Nie twórz plików .pyc na runnerze
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
 
     steps:
       # ------------------------------------------------------------
@@ -72,8 +73,20 @@ jobs:
           git config user.email "github-actions@github.com"
 
           git checkout main
+
+          # Usuń pythonowe cache (na wszelki wypadek)
+          find . -type d -name "__pycache__" -prune -exec rm -rf {} + || true
+          find . -type f -name "*.pyc" -delete || true
+
+          # Upewnij się, że working tree jest czyste (żeby rebase nie padł)
+          git reset --hard
+
           git fetch origin main
           git pull --rebase origin main
+
+          # Jeszcze raz usuń cache po rebase (gdyby coś się pojawiło)
+          find . -type d -name "__pycache__" -prune -exec rm -rf {} + || true
+          find . -type f -name "*.pyc" -delete || true
 
           git add .
           if git diff --cached --quiet; then
@@ -97,7 +110,7 @@ jobs:
           exit 1
 
       # ------------------------------------------------------------
-      # Tools
+      # Tools (jq)
       # ------------------------------------------------------------
       - name: Install jq
         shell: bash
@@ -163,8 +176,8 @@ jobs:
           WORKSPACE_HEAD="$(echo "$STATUS" | jq -r '.workspaceHead // empty')"
           REMOTE_HASH="$(echo "$STATUS" | jq -r '.remoteCommitHash // empty')"
 
-          : "${WORKSPACE_HEAD:?Missing workspaceHead}"
-          : "${REMOTE_HASH:?Missing remoteCommitHash}"
+          : "${WORKSPACE_HEAD:?Missing workspaceHead (check Fabric Git integration + SP permissions)}"
+          : "${REMOTE_HASH:?Missing remoteCommitHash (check Fabric Git integration)}"
 
           echo "workspace_head=$WORKSPACE_HEAD" >> "$GITHUB_OUTPUT"
           echo "remote_hash=$REMOTE_HASH" >> "$GITHUB_OUTPUT"
