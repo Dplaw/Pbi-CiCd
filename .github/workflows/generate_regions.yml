@@ -1,14 +1,19 @@
-name: Generate regional Power BI reports
+name: Generate & Publish Power BI PBIP (Fabric)
 
 on:
   workflow_dispatch:
   push:
     branches: [ main ]
     paths:
+      - 'scripts/**'
       - 'template/**'
       - 'config/**'
-      - 'scripts/**'
       - '.github/workflows/generate_regions.yml'
+
+# Zapobiega równoległym pushom i updateFromGit
+concurrency:
+  group: generate-regions-main
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -17,12 +22,21 @@ jobs:
   generate:
     runs-on: ubuntu-latest
 
+    # 🔴 KLUCZOWE – bez tego Environment secrets NIE DZIAŁAJĄ
+    environment: github-actions-powerbi
+
     steps:
+      # ------------------------------------------------------------
+      # Repo
+      # ------------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # ------------------------------------------------------------
+      # Python
+      # ------------------------------------------------------------
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -37,18 +51,29 @@ jobs:
             pip install -r requirements.txt
           fi
 
+      # ------------------------------------------------------------
+      # Generate PBIP projects
+      # ------------------------------------------------------------
       - name: Generate regional PBIP projects
         shell: bash
         run: |
           set -euo pipefail
           python scripts/generate_regions.py
 
+      # ------------------------------------------------------------
+      # Commit + push wygenerowanych zmian
+      # ------------------------------------------------------------
       - name: Commit & push generated outputs (if changed)
         shell: bash
         run: |
           set -euo pipefail
+
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+
+          git checkout main
+          git fetch origin main
+          git pull --rebase origin main
 
           git add .
           if git diff --cached --quiet; then
@@ -57,11 +82,23 @@ jobs:
           fi
 
           git commit -m "Update regional PBIP outputs"
-          git pull --rebase origin main
-          git push
 
-      # ----- Fabric: Update workspace from Git -----
+          for i in 1 2 3; do
+            if git push origin main; then
+              echo "Pushed successfully."
+              exit 0
+            fi
+            echo "Push failed (attempt $i). Rebasing and retrying..."
+            git fetch origin main
+            git pull --rebase origin main
+          done
 
+          echo "Failed to push after retries."
+          exit 1
+
+      # ------------------------------------------------------------
+      # Tools
+      # ------------------------------------------------------------
       - name: Install jq
         shell: bash
         run: |
@@ -69,7 +106,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq
 
-      - name: Get Fabric token (service principal)
+      # ------------------------------------------------------------
+      # Auth – Entra ID (Service Principal)
+      # ------------------------------------------------------------
+      - name: Get Fabric access token
         id: fabric_token
         shell: bash
         env:
@@ -79,35 +119,34 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Szybka walidacja, żeby nie debuggować "pustych" wartości
           : "${AZURE_TENANT_ID:?Missing AZURE_TENANT_ID}"
           : "${AZURE_CLIENT_ID:?Missing AZURE_CLIENT_ID}"
           : "${AZURE_CLIENT_SECRET:?Missing AZURE_CLIENT_SECRET}"
 
-          TOKEN_URL="https://login.microsoftonline.com/${AZURE_TENANT_ID}/oauth2/v2.0/token"
-
-          # -f => fail na 4xx/5xx (zamiast pustej odpowiedzi)
-          RESP="$(curl -fsS -X POST "$TOKEN_URL" \
+          RESP="$(curl -fsS -X POST \
+            "https://login.microsoftonline.com/${AZURE_TENANT_ID}/oauth2/v2.0/token" \
             -H "Content-Type: application/x-www-form-urlencoded" \
             --data-urlencode "client_id=${AZURE_CLIENT_ID}" \
             --data-urlencode "client_secret=${AZURE_CLIENT_SECRET}" \
             --data-urlencode "grant_type=client_credentials" \
             --data-urlencode "scope=https://api.fabric.microsoft.com/.default")"
 
-          # pokaż JSON (bez tokena nie ma tu sekretu, ale zostawiam bezpiecznie)
           echo "$RESP" | jq . >/dev/null
 
           TOKEN="$(echo "$RESP" | jq -r '.access_token // empty')"
           if [ -z "$TOKEN" ]; then
-            echo "Failed to obtain access token. Full response:"
+            echo "Failed to obtain access token:"
             echo "$RESP" | jq .
             exit 1
           fi
 
           echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
 
-      - name: Get Git status (Fabric)
-        id: git_status
+      # ------------------------------------------------------------
+      # Fabric – Git status
+      # ------------------------------------------------------------
+      - name: Get Fabric Git status
+        id: fabric_git_status
         shell: bash
         env:
           FABRIC_WORKSPACE_ID: ${{ secrets.FABRIC_WORKSPACE_ID }}
@@ -124,20 +163,16 @@ jobs:
           WORKSPACE_HEAD="$(echo "$STATUS" | jq -r '.workspaceHead // empty')"
           REMOTE_HASH="$(echo "$STATUS" | jq -r '.remoteCommitHash // empty')"
 
-          if [ -z "$WORKSPACE_HEAD" ]; then
-            echo "workspaceHead missing. Git integration or Git credentials may not be configured for this principal."
-            exit 1
-          fi
-
-          if [ -z "$REMOTE_HASH" ]; then
-            echo "remoteCommitHash missing. Check git integration status."
-            exit 1
-          fi
+          : "${WORKSPACE_HEAD:?Missing workspaceHead}"
+          : "${REMOTE_HASH:?Missing remoteCommitHash}"
 
           echo "workspace_head=$WORKSPACE_HEAD" >> "$GITHUB_OUTPUT"
           echo "remote_hash=$REMOTE_HASH" >> "$GITHUB_OUTPUT"
 
-      - name: Update workspace from Git (Fabric)
+      # ------------------------------------------------------------
+      # Fabric – Update workspace from Git
+      # ------------------------------------------------------------
+      - name: Update Fabric workspace from Git
         shell: bash
         env:
           FABRIC_WORKSPACE_ID: ${{ secrets.FABRIC_WORKSPACE_ID }}
@@ -145,8 +180,8 @@ jobs:
           set -euo pipefail
 
           BODY="$(jq -n \
-            --arg wh "${{ steps.git_status.outputs.workspace_head }}" \
-            --arg rh "${{ steps.git_status.outputs.remote_hash }}" \
+            --arg wh "${{ steps.fabric_git_status.outputs.workspace_head }}" \
+            --arg rh "${{ steps.fabric_git_status.outputs.remote_hash }}" \
             '{
               workspaceHead: $wh,
               remoteCommitHash: $rh,
