@@ -1,53 +1,74 @@
 name: Generate regional Power BI reports
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
   push:
     branches: [ main ]
     paths:
       # odpala się przy każdej zmianie w folderze template oraz config
       - 'template/**'
       - 'config/**'
+      - 'scripts/**'
+      - '.github/workflows/generate_regions.yml'
+
+permissions:
+  contents: write
 
 jobs:
   generate:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
-      - name: Run generation script
+      - name: Install dependencies
+        shell: bash
         run: |
-          python scripts/generate_regions.py
-      - name: Commit and push generated reports
-        env:
-          BRANCH_NAME: ${{ github.ref_name }}
-        run: |
-          echo "Git status before commit:"
-          git status --porcelain
-          
-          if [[ -n "$(git status --porcelain)" ]]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add .
-            git commit -m "Auto-generate regional reports"
-
-            git pull --rebase origin "$BRANCH_NAME"
-            git push origin HEAD:"$BRANCH_NAME"
-          else
-            echo "No changes to commit."
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
           fi
+
+      - name: Generate regional PBIP projects
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/generate_regions.py
+
+      - name: Commit & push generated outputs (if changed)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add .
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Update regional PBIP outputs"
+          git push
+
+      # ----- Fabric: Update workspace from Git -----
+
+      - name: Install jq
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y jq
+
       - name: Get Fabric token (service principal)
         id: fabric_token
         shell: bash
@@ -87,11 +108,12 @@ jobs:
           REMOTE_HASH=$(echo "$STATUS" | jq -r '.remoteCommitHash')
 
           if [ -z "$WORKSPACE_HEAD" ] || [ "$WORKSPACE_HEAD" = "null" ]; then
-            echo "workspaceHead missing. Git credentials or integration may not be configured for this principal."
+            echo "workspaceHead missing. Git integration or Git credentials may not be configured for this principal."
             exit 1
           fi
+
           if [ -z "$REMOTE_HASH" ] || [ "$REMOTE_HASH" = "null" ]; then
-            echo "remoteCommitHash missing. Check git integration state."
+            echo "remoteCommitHash missing. Check git integration status."
             exit 1
           fi
 
