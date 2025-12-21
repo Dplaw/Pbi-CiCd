@@ -1,6 +1,7 @@
 name: Generate regional Power BI reports
 
 on:
+  workflow_dispatch
   push:
     branches: [ main ]
     paths:
@@ -13,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
@@ -26,7 +30,6 @@ jobs:
       - name: Run generation script
         run: |
           python scripts/generate_regions.py
-
       - name: Commit and push generated reports
         env:
           BRANCH_NAME: ${{ github.ref_name }}
@@ -45,3 +48,86 @@ jobs:
           else
             echo "No changes to commit."
           fi
+      - name: Get Fabric token (service principal)
+        id: fabric_token
+        shell: bash
+        run: |
+          set -euo pipefail
+          TOKEN=$(curl -sS -X POST "https://login.microsoftonline.com/${AZURE_TENANT_ID}/oauth2/v2.0/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "client_id=${AZURE_CLIENT_ID}" \
+            -d "client_secret=${AZURE_CLIENT_SECRET}" \
+            -d "grant_type=client_credentials" \
+            -d "scope=https://api.fabric.microsoft.com/.default" | jq -r .access_token)
+
+          if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
+            echo "Failed to obtain access token"
+            exit 1
+          fi
+
+          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+      - name: Get Git status (Fabric)
+        id: git_status
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATUS=$(curl -sS -X POST \
+            "https://api.fabric.microsoft.com/v1/workspaces/${FABRIC_WORKSPACE_ID}/git/getStatus" \
+            -H "Authorization: Bearer ${{ steps.fabric_token.outputs.token }}" \
+            -H "Content-Type: application/json")
+
+          echo "$STATUS" | jq .
+
+          WORKSPACE_HEAD=$(echo "$STATUS" | jq -r '.workspaceHead')
+          REMOTE_HASH=$(echo "$STATUS" | jq -r '.remoteCommitHash')
+
+          if [ -z "$WORKSPACE_HEAD" ] || [ "$WORKSPACE_HEAD" = "null" ]; then
+            echo "workspaceHead missing. Git credentials or integration may not be configured for this principal."
+            exit 1
+          fi
+          if [ -z "$REMOTE_HASH" ] || [ "$REMOTE_HASH" = "null" ]; then
+            echo "remoteCommitHash missing. Check git integration state."
+            exit 1
+          fi
+
+          echo "workspace_head=$WORKSPACE_HEAD" >> $GITHUB_OUTPUT
+          echo "remote_hash=$REMOTE_HASH" >> $GITHUB_OUTPUT
+        env:
+          FABRIC_WORKSPACE_ID: ${{ secrets.FABRIC_WORKSPACE_ID }}
+
+      - name: Update workspace from Git (Fabric)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BODY=$(jq -n \
+            --arg wh "${{ steps.git_status.outputs.workspace_head }}" \
+            --arg rh "${{ steps.git_status.outputs.remote_hash }}" \
+            '{
+              workspaceHead: $wh,
+              remoteCommitHash: $rh,
+              conflictResolution: {
+                conflictResolutionType: "Workspace",
+                conflictResolutionPolicy: "PreferWorkspace"
+              },
+              options: {
+                allowOverrideItems: true
+              }
+            }')
+
+          echo "$BODY" | jq .
+
+          RESP=$(curl -sS -i -X POST \
+            "https://api.fabric.microsoft.com/v1/workspaces/${FABRIC_WORKSPACE_ID}/git/updateFromGit" \
+            -H "Authorization: Bearer ${{ steps.fabric_token.outputs.token }}" \
+            -H "Content-Type: application/json" \
+            -d "$BODY")
+
+          echo "$RESP"
+        env:
+          FABRIC_WORKSPACE_ID: ${{ secrets.FABRIC_WORKSPACE_ID }}
