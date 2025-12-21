@@ -57,6 +57,7 @@ jobs:
           fi
 
           git commit -m "Update regional PBIP outputs"
+          git pull --rebase origin main
           git push
 
       # ----- Fabric: Update workspace from Git -----
