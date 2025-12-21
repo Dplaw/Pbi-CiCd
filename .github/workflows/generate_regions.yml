@@ -69,28 +69,40 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq
 
-      - name: Get Fabric token (service principal)
+      - name: Get Fabric token (service principal) - with diagnostics
         id: fabric_token
         shell: bash
         run: |
           set -euo pipefail
-          TOKEN=$(curl -sS -X POST "https://login.microsoftonline.com/${AZURE_TENANT_ID}/oauth2/v2.0/token" \
+
+          RESP=$(curl -sS -X POST "https://login.microsoftonline.com/${AZURE_TENANT_ID}/oauth2/v2.0/token" \
             -H "Content-Type: application/x-www-form-urlencoded" \
             -d "client_id=${AZURE_CLIENT_ID}" \
             -d "client_secret=${AZURE_CLIENT_SECRET}" \
             -d "grant_type=client_credentials" \
-            -d "scope=https://api.fabric.microsoft.com/.default" | jq -r .access_token)
+            -d "scope=https://api.fabric.microsoft.com/.default")
 
-          if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
-            echo "Failed to obtain access token"
-            exit 1
-          fi
+          echo "Token endpoint response:"
+          echo "$RESP"
 
-          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+          TOKEN=$(python - <<'PY'
+          import json, sys
+          data = json.loads(sys.stdin.read())
+          print(data.get("access_token",""))
+          PY
+                    <<< "$RESP")
+
+                    if [ -z "$TOKEN" ]; then
+                      echo "Failed to obtain access token. See response above (error/error_description)."
+                      exit 1
+                    fi
+
+                    echo "token=$TOKEN" >> $GITHUB_OUTPUT
         env:
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+
 
       - name: Get Git status (Fabric)
         id: git_status
