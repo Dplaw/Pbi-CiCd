@@ -2,8 +2,8 @@
     "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",
     "version": "4.0",
     "datasetReference": {
-        "byPath": {
-            "path": "../SalesReport_Africa.SemanticModel"
+        "byConnection": {
+            "connectionString": "semanticmodelid=1f3c3421-342c-4a13-97a0-7c68ef235819"
         }
     }
 }

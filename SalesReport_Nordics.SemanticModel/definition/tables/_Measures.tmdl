@@ -630,6 +630,9 @@ table _Measures
 	measure Region = CONCATENATE(FIRSTNONBLANK( location_dim[Region], location_dim[Region] ), " Region")
 		lineageTag: 9db41cbd-5883-4f9b-a0a5-8336d08afc9f
 
+	measure Test = "Test"
+		lineageTag: 0129485d-d7d0-4de9-b255-35055bb20337
+
 	partition _Measures = m
 		mode: import
 		source =
