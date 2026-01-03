@@ -1,4 +1,4 @@
-name: Generate regional Power BI reports
+name: Generate & Publish Power BI PBIP (Fabric)
 
 on:
   push:
@@ -12,13 +12,24 @@ on:
 jobs:
   generate:
     runs-on: ubuntu-latest
+    environment: github-actions-powerbi
+
+    # Nie twórz plików .pyc na runnerze
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
 
     steps:
+      # ------------------------------------------------------------
+      # Repo
+      # ------------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # ------------------------------------------------------------
+      # Python
+      # ------------------------------------------------------------
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
