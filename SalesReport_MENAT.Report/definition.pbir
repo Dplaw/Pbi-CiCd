@@ -2,8 +2,8 @@
     "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",
     "version": "4.0",
     "datasetReference": {
-        "byPath": {
-            "path": "../SalesReport_MENAT.SemanticModel"
+        "byConnection": {
+            "connectionString": "semanticmodelid=74adecb1-027c-4714-a637-0c38b889c4c3"
         }
     }
 }

@@ -119,6 +119,20 @@
               },
               "queryRef": "_Measures.% Target",
               "nativeQueryRef": "% Target"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Test"
+                }
+              },
+              "queryRef": "_Measures.Test",
+              "nativeQueryRef": "Test"
             }
           ]
         }

@@ -2,8 +2,8 @@
     "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",
     "version": "4.0",
     "datasetReference": {
-        "byPath": {
-            "path": "../SalesReport_C&EE.SemanticModel"
+        "byConnection": {
+            "connectionString": "semanticmodelid=7dfc4643-d203-4a26-8c2f-dbcee381f0e8"
         }
     }
 }

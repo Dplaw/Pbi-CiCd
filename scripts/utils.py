@@ -1,4 +1,5 @@
 import json
+import sys
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, Mapping
@@ -56,3 +57,19 @@ def ensure_platform_structure(platform: Dict[str, Any]) -> Dict[str, Any]:
     platform.setdefault("config", {})
     platform.setdefault("metadata", {})
     return platform
+
+
+def log(msg: str) -> None:
+    print(msg, flush=True)
+
+
+def die(msg: str, code: int = 1) -> None:
+    print(msg, file=sys.stderr, flush=True)
+    raise SystemExit(code)
+
+
+def require_env(name: str) -> str:
+    val = os.getenv(name, "").strip()
+    if not val:
+        die(f"Missing required env var: {name}")
+    return val
