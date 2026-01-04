@@ -16,19 +16,17 @@ jobs:
 
     env:
       PYTHONDONTWRITEBYTECODE: "1"
+      AZURE_TENANT_ID:      ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID:      ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET:  ${{ secrets.AZURE_CLIENT_SECRET }}
+      FABRIC_WORKSPACE_ID:  ${{ secrets.FABRIC_WORKSPACE_ID }}
 
     steps:
-      # ------------------------------------------------------------
-      # Repo
-      # ------------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # ------------------------------------------------------------
-      # Python
-      # ------------------------------------------------------------
       - name: Set up Python
         uses: actions/setup-python@v4
         with:

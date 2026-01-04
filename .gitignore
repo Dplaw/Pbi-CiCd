@@ -1,8 +1,3 @@
 **/.pbi/localSettings.json
 **/.pbi/cache.abf
-scripts/__pycache__/models_manager.cpython-311.pyc
-scripts/__pycache__/models_manager.cpython-313.pyc
-scripts/__pycache__/models_manager.cpython-313.pyc
-scripts/__pycache__/report_creator.cpython-313.pyc
-scripts/__pycache__/utils.cpython-311.pyc
-scripts/__pycache__/utils.cpython-313.pyc
+**/__pycache__/
